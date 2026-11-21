@@ -4,12 +4,12 @@ from asyncio import run
 from datetime import datetime
 from io import BytesIO
 from os import remove
-from os.path import basename, splitext
+from os.path import basename, isfile, splitext
 from typing import Any, Dict, List, Tuple, Union
 
 from flask import Blueprint, after_this_request, request, send_file
 
-from backend.base.custom_exceptions import (InvalidDatabaseFile,
+from backend.base.custom_exceptions import (FileNotFound, InvalidDatabaseFile,
                                             InvalidKeyValue, KeyNotFound)
 from backend.base.definitions import (BlocklistReason, BlocklistReasonID,
                                       CredentialData, CredentialSource,
@@ -1682,6 +1682,25 @@ def api_mass_editor():
 
 
 # region Files
+@api.route('/files/<int:f_id>/download', methods=['GET'])
+@error_handler
+@auth
+def api_download_file(f_id: int):
+    """Download a library file to the browser client."""
+    file = FilesDB.fetch(file_id=f_id)[0]
+
+    if not isfile(file['filepath']):
+        raise FileNotFound(file['filepath'])
+
+    response = send_file(
+        file['filepath'],
+        as_attachment=True,
+        download_name=basename(file['filepath']),
+        conditional=True
+    )
+    return response, response.status_code
+
+
 @api.route('/files/<int:f_id>', methods=['GET', 'DELETE'])
 @error_handler
 @auth

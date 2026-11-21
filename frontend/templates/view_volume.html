@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "base.html" import icon_button, window, loading_window %}
+{% from "base.html" import icon_button, icon_link, window, loading_window %}
 {% block title %}Volume{% endblock %}
 {% block css %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/window.css') }}">
@@ -24,6 +24,7 @@
 		<td class="action-column" aria-label="Actions">
 			{{ icon_button('', "Auto search for this issue", "search.svg") }}
 			{{ icon_button('', "Manually search for this issue", "manual_search.svg") }}
+			{{ icon_link('', "Download issue file", "download.svg") }}
 			{{ icon_button('', "Convert files for this issue", "convert.svg") }}
 		</td>
 	</tr>
@@ -71,6 +72,9 @@
 	<tr class="files-entry">
 		<td class="f-filepath"></td>
         <td class="f-size"></td>
+		<td class="f-download">
+			{{ icon_link('', "Download", "download.svg") }}
+		</td>
         <td class="f-delete">
             {{ icon_button('', "Delete", "delete.svg") }}
         </td>
@@ -235,6 +239,7 @@
                 <tr>
                     <th>File</th>
                     <th>Size</th>
+					<th>Download</th>
                     <th>Delete</th>
                 </tr>
             </thead>

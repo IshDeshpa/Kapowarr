@@ -73,7 +73,8 @@ class IssueEntry {
 		this.status = this.entry.querySelector('.issue-status');
 		this.auto_search = this.entry.querySelector('.action-column :nth-child(1)');
 		this.manual_search = this.entry.querySelector('.action-column :nth-child(2)');
-		this.convert = this.entry.querySelector('.action-column :nth-child(3)');
+		this.download = this.entry.querySelector('.action-column :nth-child(3)');
+		this.convert = this.entry.querySelector('.action-column :nth-child(4)');
 	};
 
 	setMonitorIcon() {
@@ -155,6 +156,19 @@ function fillTable(issues, api_key) {
 		// Actions
 		inst.auto_search.onclick = e => autosearchIssue(obj.id, api_key);
 		inst.manual_search.onclick = e => showManualSearch(api_key, obj.id);
+		if (obj.files.length === 1) {
+			configureDownloadLink(inst.download, obj.files[0].id, api_key);
+		} else if (obj.files.length > 1) {
+			inst.download.href = '#';
+			inst.download.onclick = e => {
+				e.preventDefault();
+				showIssueInfo(obj.id, api_key)
+					.then(() => showInfoWindow('issue-files'));
+			};
+		} else {
+			inst.download.setAttribute('aria-disabled', 'true');
+			inst.download.title = 'No file available to download';
+		}
 		inst.convert.onclick = e => showConvert(api_key, obj.id);
 	};
 };
@@ -909,7 +923,7 @@ function deleteVolume() {
 //
 function showIssueInfo(issue_id, api_key) {
 	document.querySelector('#issue-rename-selector').dataset.issue_id = issue_id;
-	fetchAPI(`/issues/${issue_id}`, api_key)
+	return fetchAPI(`/issues/${issue_id}`, api_key)
 	.then(json => {
 		document.querySelector('#issue-info-title').innerText =
 			`${json.result.title} - #${json.result.issue_number} - ${json.result.date}`;
@@ -929,6 +943,11 @@ function showIssueInfo(issue_id, api_key) {
             entry.querySelector('.f-filepath').title = f.filepath;
             
             entry.querySelector('.f-size').innerText = convertSize(f.size, 1);
+			configureDownloadLink(
+				entry.querySelector('.f-download a'),
+				f.id,
+				api_key
+			);
             entry.querySelector('.f-delete button').onclick = e =>
                 sendAPI("DELETE", `/files/${f.id}`, api_key)
                 .then(response => entry.remove());
@@ -937,6 +956,31 @@ function showIssueInfo(issue_id, api_key) {
 		});
 		showWindow('issue-info-window');
 	});
+};
+
+function isStandaloneWebApp() {
+	return window.navigator.standalone === true
+		|| window.matchMedia('(display-mode: standalone)').matches;
+};
+
+function isIOS() {
+	return /iPad|iPhone|iPod/.test(window.navigator.userAgent)
+		|| (window.navigator.platform === 'MacIntel'
+			&& window.navigator.maxTouchPoints > 1);
+};
+
+function configureDownloadLink(link, file_id, api_key) {
+	link.href = `${url_base}/api/files/${file_id}/download?api_key=${encodeURIComponent(api_key)}`;
+
+	if (isIOS() && isStandaloneWebApp()) {
+		link.target = '_blank';
+		link.rel = 'noopener noreferrer';
+		link.title = 'Download (opens in browser)';
+		link.setAttribute('aria-label', 'Download (opens in browser)');
+	} else {
+		link.removeAttribute('target');
+		link.removeAttribute('rel');
+	};
 };
 
 function showInfoWindow(window) {

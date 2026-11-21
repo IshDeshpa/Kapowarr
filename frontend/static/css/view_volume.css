@@ -172,7 +172,7 @@ tbody .issue-title:hover {
 	cursor: pointer;
 }
 
-.issue-entry button {
+.issue-entry :where(button, .icon-link) {
 	height: 18px;
 }
 
@@ -467,7 +467,7 @@ tbody .issue-title:hover {
     width: 4.5rem;
 }
 
-:where(.files-entry, .general-files-entry) td button {
+:where(.files-entry, .general-files-entry) td :where(button, .icon-link) {
     width: 1.5rem;
 }
 

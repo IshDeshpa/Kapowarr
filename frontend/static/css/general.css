@@ -29,6 +29,22 @@ button:has(img, svg) {
 	padding: 0;
 }
 
+.icon-link {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.icon-link:hover {
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.icon-link[aria-disabled="true"] {
+	cursor: default;
+	opacity: .5;
+}
+
 button > :where(img, svg) {
 	height: auto;
 }

@@ -180,6 +180,22 @@
 	</button>
 {% endmacro %}
 
+{% macro icon_link(id, title, icon, desc='') %}
+	<a
+		id="{{ id }}"
+		class="icon-link"
+		title="{{ title }}"
+		aria-label="{{ title }}"
+	>
+		<img src="{{ url_for('static', filename='img/' + icon) }}" alt="">
+		{% if desc %}
+		<div aria-hidden="true">
+			<p>{{ desc }}</p>
+		</div>
+		{% endif %}
+	</a>
+{% endmacro %}
+
 {% macro window(wide_window, id, title, content, save_button='', loading_id='', cancel=True) %}
 	<!-- {{ title }} -->
 	<section
